@@ -1,9 +1,9 @@
 var app   = require('http').createServer(handler);
 var io    = require('socket.io')(app);
-var redis = require('redis');
 
+var arena = require('./arena');
 
-var redis_client_mapper = require('./redis_client_mapper');
+var Player = require('./player');
 
 app.listen(3030);
 
@@ -19,11 +19,16 @@ function handler(req, res){
 
 function authenticate(token) {
   // TODO: Implement Me
+  return true;
 }
 
 io.on('connection', function(socket){
   var self = this;
-  var redis_client = redis_client_mapper.firstOrCreateClientForSocket(socket);
+  var player = new Player(socket);
+
+  arena.checkInPlayer(player);
+
+  console.log('connected');
 
   var withAuthentication = function(token, callback, args){
     if (authenticate(token)) {
@@ -31,24 +36,43 @@ io.on('connection', function(socket){
     } else {
       socket.emit('error', { message: 'Unauthorized Access: Token is invalid!' });
     }
-  }
+  };
 
   socket.on('create:gameroom', function(data){
-    withAuthentication(data.token, function(data){
+    // withAuthentication(data.token, function(data){
+    // }, [data]);
 
-    }, [data]);
+    socket.join(player.id);
+    arena.lobby.createGame({
+      id: player.id,
+      type: data.type,
+      owner: player
+    });
+
+    console.log(arena.lobby.allGames());
+
   });
 
   socket.on('join:gameroom', function(data){
-    withAuthentication(data.token, function(data){
+    // withAuthentication(data.token, function(data){
 
-    }, [data]);
+    // }, [data]);
+  });
+
+  socket.on('leave:gameroom', function(data){
+    // withAuthentication(data.token, function(data){
+
+    // }, [data]);
   });
 
   socket.on('received:instructions', function(data){
-    withAuthentication(data.token, function(data){
+    // withAuthentication(data.token, function(data){
 
-    }, [data]);
+    // }, [data]);
+  });
+
+  socket.on('disconnect', function(){
+    arena.checkOutPlayer(player);
   });
 });
 
