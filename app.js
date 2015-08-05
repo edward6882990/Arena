@@ -28,8 +28,6 @@ io.on('connection', function(socket){
 
   arena.checkInPlayer(player);
 
-  console.log('connected');
-
   var withAuthentication = function(token, callback, args){
     if (authenticate(token)) {
       callback.apply(self, args);
@@ -48,9 +46,6 @@ io.on('connection', function(socket){
       type: data.type,
       owner: player
     });
-
-    console.log(arena.lobby.allGames());
-
   });
 
   socket.on('join:gameroom', function(data){
@@ -73,6 +68,7 @@ io.on('connection', function(socket){
 
   socket.on('disconnect', function(){
     arena.checkOutPlayer(player);
+    player = null;
   });
 });
 

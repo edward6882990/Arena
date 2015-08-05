@@ -23,6 +23,7 @@ function Game(data){
     if (this.isFull()){
       return false;
     } else {
+      player.currentGameId = this.id;
       players.push(player);
       return true;
     }
@@ -31,7 +32,12 @@ function Game(data){
   this.ejectPlayer = function(player){
     for(i = 0; i < players.length; i++){
       if(players[i].socket.id == player.socket.id){
-        this.player[i].slice(i, 1);
+        player.currentGameId = null;
+        players.splice(i, 1);
+
+        if(!players.length == 0)
+          this.owner = players[0];
+
         break;
       }
     }
@@ -39,6 +45,14 @@ function Game(data){
 
   this.numOfPlayers = function(){
     return players.length;
+  };
+
+  this.isPlayerInGame = function(player){
+    for(i = 0; i < players.length; i++){
+      if(players[i].id == player.id) return true;
+    }
+
+    return false;
   };
 
   // =============== Private =================
