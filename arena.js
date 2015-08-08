@@ -14,15 +14,10 @@ function Arena(){
   this.checkOutPlayer = function(player){
     if (!player.socket) throw "Player does not have a socket connection!";
 
-    if (player.currentGameId) {
-      var game = lobby.findGameById(player.currentGameId);
-      game.ejectPlayer(player);
-    }
+    if (player.isInGame()) player.leaveCurrentGame();
 
     this.playersBySocketId[player.socket.id] = null;
     player.redisClient.quit();
-
-    player = null;
   };
 
   this.isPlayerCheckedIn = function(player){

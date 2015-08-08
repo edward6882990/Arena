@@ -5,10 +5,12 @@ var Lobby  = require('../lobby');
 
 function SpecHelper(){
   chai.should();
+
   global.expect = chai.expect;
   global.Player = Player;
   global.Game   = Game;
   global.Lobby  = Lobby;
+
   global.generateRandomId = function(){
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

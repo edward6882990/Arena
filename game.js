@@ -15,15 +15,11 @@ function Game(data){
     this.usherPlayer(this.owner);
   };
 
-  this.isFull = function(){
-    return players.length >= MAX_NUM_PLAYERS;
-  };
-
   this.usherPlayer = function(player){
     if (this.isFull()){
       return false;
     } else {
-      player.currentGameId = this.id;
+      player.setCurrentGame(this);
       players.push(player);
       return true;
     }
@@ -32,7 +28,7 @@ function Game(data){
   this.ejectPlayer = function(player){
     for(i = 0; i < players.length; i++){
       if(players[i].socket.id == player.socket.id){
-        player.currentGameId = null;
+        player.setCurrentGame(null);
         players.splice(i, 1);
 
         if(!players.length == 0)
@@ -47,12 +43,39 @@ function Game(data){
     return players.length;
   };
 
+
+  this.allPlayers = function(){
+    return players;
+  };
+
+  // ============= Statuses =================
+
+  this.isFull = function(){
+    return players.length >= MAX_NUM_PLAYERS;
+  };
+
   this.isPlayerInGame = function(player){
     for(i = 0; i < players.length; i++){
       if(players[i].id == player.id) return true;
     }
 
     return false;
+  };
+
+  this.isAllPlayerReady = function(){
+    for(i = 0; i < players.length; i++){
+      if (!players[i].ready) return false;
+    }
+
+    return true;
+  };
+
+  this.isAllPlayerLoaded = function(){
+    for(i = 0; i < players.length; i++){
+      if (!players[i].loaded) return false;
+    }
+
+    return true;
   };
 
   // =============== Private =================

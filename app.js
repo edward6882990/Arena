@@ -8,13 +8,13 @@ var Player = require('./player');
 app.listen(3030);
 
 function handler(req, res){
-    try {
-      res.writeHead(200);
-      res.end('');
-    } catch(err) {
-      res.writeHead(500);
-      return res.end('Error occurred');
-    }
+  try {
+    res.writeHead(200);
+    res.end('');
+  } catch(err) {
+    res.writeHead(500);
+    return res.end('Error occurred');
+  }
 }
 
 function authenticate(token) {
@@ -37,10 +37,10 @@ io.on('connection', function(socket){
   };
 
   socket.on('create:gameroom', function(data){
-    // withAuthentication(data.token, function(data){
-    // }, [data]);
-
     socket.join(player.id);
+
+    player.resetStatus();
+
     arena.lobby.createGame({
       id: player.id,
       type: data.type,
@@ -49,21 +49,62 @@ io.on('connection', function(socket){
   });
 
   socket.on('join:gameroom', function(data){
-    // withAuthentication(data.token, function(data){
+    socket.join(data.gameId);
 
-    // }, [data]);
+    player.resetStatus();
+
+    arena.lobby.findGameById(data.gameId);
+    if(game.usherPlayer(player)) {
+      socket.emit('joined:gameroom', {
+        id: game.id,
+        players: game.allPlayers().map(function(p){ p.id })
+      })
+    }
   });
 
   socket.on('leave:gameroom', function(data){
-    // withAuthentication(data.token, function(data){
+    if (player.isInGame()){
+      socket
+        .broadcast
+        .to(player.currentGameId())
+        .emit('player:left:gameroom');
 
-    // }, [data]);
+      player.leaveCurrentGame();
+    }
   });
 
-  socket.on('received:instructions', function(data){
-    // withAuthentication(data.token, function(data){
+  socket.on('ready', function(data){
+    socket
+      .broadcast
+      .to(player.currentGameId())
+      .emit('player:ready');
 
-    // }, [data]);
+    player.setReady();
+
+    if (player.currentGame().isAllPlayerReady())
+      socket
+        .broadcast
+        .to(player.currentGameId())
+        .emit('game:load');
+  });
+
+  socket.on('loaded', function(data){
+    player.setLoaded();
+
+    if (player.currentGame().isAllPlayerLoaded())
+      socket
+        .broadcast
+        .to(player.currentGameId())
+        .emit('game:start');
+  });
+
+  socket.on('user:input', function(data){
+    data['player_id'] = player.id;
+
+    socket
+      .broadcast
+      .to(player.currentGameId())
+      .emit('player:input', data);
   });
 
   socket.on('disconnect', function(){
