@@ -19,7 +19,11 @@ function SpecHelper(){
       text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
-  }
+  };
+
+  global.generatePlayer = function(){
+    return new Player({ id: generateRandomId() });
+  };
 }
 
 module.exports = new SpecHelper();
