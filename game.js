@@ -1,12 +1,17 @@
+var _ = require('underscore');
+
+var World = require('./world');
+
 function Game(data){
   // TODO: May change it so this is adjustable
   var MAX_NUM_PLAYERS = 4;
   var players = [];
 
-  this.owner   = null;
+  this.owner     = null;
+  this.isStarted = false;
 
   this.initialize = function(){
-    validateGameParams(data);
+    _validateGameParams(data);
 
     this.id   = data.id;
     this.type = data.type
@@ -78,9 +83,48 @@ function Game(data){
     return true;
   };
 
+  this.start = function(){
+    var badges = _shuffle([1,2,3,4]);
+
+    _.each(players, function(player){
+      var badge = badges.pop();
+
+      player.badge = badge;
+    });
+
+    this.world = new World(players);
+
+    this.isStarted = true;
+  };
+
+  this.end = function(){
+
+  };
+
   // =============== Private =================
 
-  var validateGameParams = function(data){
+  var _broadcastGameStart = function(){
+    players[0].socket.broadcast.to(this.id).emit('game:start');
+  };
+
+  var _shuffle = function(array){
+    var counter = array.length, temp, index;
+
+    while (counter > 0) {
+      index = Math.floor(Math.random() * counter);
+
+      counter--;
+
+      temp = array[counter];
+      array[counter] = array[index];
+      array[index] = temp;
+    }
+
+    return array;
+  };
+
+
+  var _validateGameParams = function(data){
     if (!data.id)
       throw "data[id] must be provided!";
 

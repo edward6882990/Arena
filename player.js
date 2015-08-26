@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 var redis = require('redis');
 
 function Player(socket){
@@ -5,6 +7,8 @@ function Player(socket){
   var loaded = false;
 
   var currentGame = null;
+
+  this.inputs = [];
 
   this.socket = socket;
   if (!this.socket)
@@ -17,6 +21,10 @@ function Player(socket){
   this.redisClient = redis.createClient();
   if (!this.redisClient)
     throw "Player: redisClient is not defined!";
+
+  this.badge = null;
+
+  this.position = { x: 0, y: 0 };
 
   // ========== Actions ============
 
@@ -52,6 +60,29 @@ function Player(socket){
   this.currentGame = function(){
     return currentGame;
   };
+
+  this.bufferInputs = function(inputs){
+    var self = this;
+
+    _.each(inputs, function(input){
+      input.badge = self.badge;
+      this.inputs.push(input);
+    })
+  }
+
+  this.clearInputBuffer = function(){
+    this.inputs = [];
+  }
+
+  this.broadcast = function(message, data){
+    this.socket.broadcast.to(this.currentGameId()).emit(message, data);
+  }
+
+  this.updatePosition = function(position){
+    if (!position.x || !position.y) throw "Invalid position given. Cannot update!"
+
+    this.position = position;
+  }
 
   // ============ Statuses ============
 
