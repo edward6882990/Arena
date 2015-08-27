@@ -98,7 +98,9 @@ function Game(data){
   };
 
   this.end = function(){
+    this.world.destroy();
 
+    this.isEnded = true;
   };
 
   // =============== Private =================

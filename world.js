@@ -1,6 +1,6 @@
 var _ = require('underscore');
 
-var Input  = require('./input'):
+var Input  = require('./input');
 var Events = require('./events');
 
 function World(players){
@@ -9,7 +9,7 @@ function World(players){
   this.players = players;
 
   this.initialize = function(){
-    setInterval(this.update, UPDATE_INTERVAL);
+    this.interval = setInterval(this.update, UPDATE_INTERVAL);
   };
 
   this.update = function(){
@@ -54,6 +54,10 @@ function World(players){
   this.findPlayerByBadge = function(badge){
     _.findWhere(this.players, { badge: badge });
   }
+
+  this.destroy = function(){
+    clearInterval(this.invterval);
+  };
 
   // ============ Private ==============
 

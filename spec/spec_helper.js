@@ -1,28 +1,33 @@
 var chai = require('chai');
-var Player = require('../player');
-var Game   = require('../game');
-var Lobby  = require('../lobby');
+
+var FixtureGenerator = require('./fixture_generator');
 
 function SpecHelper(){
   chai.should();
 
   global.expect = chai.expect;
-  global.Player = Player;
-  global.Game   = Game;
-  global.Lobby  = Lobby;
+  global.FixtureGenerator = FixtureGenerator;
 
   global.generateRandomId = function(){
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (i = 0; i < 5; i++)
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
+    return FixtureGenerator.generateRandomId();
   };
 
   global.generatePlayer = function(){
-    return new Player({ id: generateRandomId() });
+    return FixtureGenerator.generatePlayer();
+  };
+
+  global.cloneObject = function(object){
+    var clone = {};
+
+    for(each in object){
+      if (object[each] instanceof Object){
+        clone[each] = cloneObject(object[each]);
+      } else {
+        clone[each] = object[each];
+      }
+    }
+
+    return clone;
   };
 }
 
