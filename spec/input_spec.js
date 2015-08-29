@@ -5,9 +5,9 @@ var fg = FixtureGenerator;
 describe("Input", function(){
   describe("initialize", function(){
     var default_data = {
-      badge     : fg.generateRandomBadge(),
-      position  : fg.generateRandomPosition(),
-      direction : fg.generateRandomDirectionVector()
+      badge      : fg.generateRandomBadge(),
+      position   : fg.generateRandomPosition(),
+      directions : fg.generateRandomDirectionVector()
     };
 
     context("when badge is not provided", function(){
@@ -59,7 +59,7 @@ describe("Input", function(){
     context("when direction is provided", function(){
       context("when x is positive", function(){
         var data = cloneObject(default_data);
-        data.direction.x = 1;
+        data.directions.x = 1;
 
         it("has directions that contains 'right'", function(){
           var input = new Input(data);
@@ -70,7 +70,7 @@ describe("Input", function(){
 
       context("when x is negative", function(){
         var data = cloneObject(default_data);
-        data.direction.x = -1;
+        data.directions.x = -1;
 
         it("has directions that contains 'left'", function(){
           var input = new Input(data);
@@ -81,7 +81,7 @@ describe("Input", function(){
 
       context("when x is neutral", function(){
         var data = cloneObject(default_data);
-        data.direction.x = 0;
+        data.directions.x = 0;
 
         it("has directions that does not contain either 'left' or 'right'", function(){
           var input = new Input(data);
@@ -93,7 +93,7 @@ describe("Input", function(){
 
       context("when y is positive", function(){
         var data = cloneObject(default_data);
-        data.direction.y = 1;
+        data.directions.y = 1;
 
         it("has directions that contains 'up'", function(){
           var input = new Input(data);
@@ -104,7 +104,7 @@ describe("Input", function(){
 
       context('when y is negative', function(){
         var data = cloneObject(default_data);
-        data.direction.y = -1;
+        data.directions.y = -1;
 
         it("has directions that contains 'down'", function(){
           var input = new Input(data);
@@ -116,7 +116,7 @@ describe("Input", function(){
 
       context("when y is neutral", function(){
         var data = cloneObject(default_data);
-        data.direction.y = 0;
+        data.directions.y = 0;
 
         it("has directions that does not contain either 'up' or 'down'", function(){
           var input = new Input(data);

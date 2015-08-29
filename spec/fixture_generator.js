@@ -10,7 +10,7 @@ FixtureGenerator = {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    for (i = 0; i < 5; i++)
+    for (var i = 0; i < 5; i++)
       text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
@@ -56,13 +56,17 @@ FixtureGenerator = {
     };
   },
 
-  generateInput: function(){
-    return new Input({
+  generateRandomInputDatum: function(){
+    return {
       time       : new Date(),
       badge      : this.generateRandomBadge(),
       position   : this.generateRandomPosition(),
       directions : this.generateRandomDirectionVector()
-    })
+    };
+  },
+
+  generateInput: function(){
+    return new Input(this.generateRandomInputDatum());
   },
 
   generatePlayer: function(){
@@ -78,8 +82,10 @@ FixtureGenerator = {
   generateWorld: function(){
     var players = [];
 
-    for(i = 0; i < 4; i++){
-      players.push(this.generatePlayer());
+    for(var i = 0; i < 4; i++){
+      var player = this.generatePlayer();
+      player.badge = i + 1;
+      players.push(player);
     }
 
     return new World(players);

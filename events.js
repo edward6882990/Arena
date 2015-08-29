@@ -33,7 +33,7 @@ Events = {
     } else if (!player.isZombie() && anotherPlayer.isZombie()){
       this.convertIntoZombie(anotherPlayer, player);
     } else {
-      doNothing();
+      this.doNothing();
     }
   },
 

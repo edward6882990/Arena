@@ -9,51 +9,50 @@ function World(players){
   this.players = players;
 
   this.initialize = function(){
-    this.interval = setInterval(this.update, UPDATE_INTERVAL);
+    this._iterate();
   };
 
   this.update = function(){
     var inputData = _getInputData(this.players);
 
-    while(inputs.length > 0){
+    while(inputData.length > 0){
       var inputDatum = inputData.pop();
       var player = this.findPlayerByBadge(inputDatum.badge);
 
-      executeInputForPlayer(player, inputDatum)
+      this.executeInputForPlayer(player, inputDatum)
     }
   };
 
   this.executeInputForPlayer = function(player, inputDatum){
     var input = new Input(inputDatum);
     var isMovable = true;
-    var otherPlayers = this.getOtherPlayers(player);
+    var world = this;
 
-    _.each(otherPlayers, function(anotherPlayer){
-      if (input.direction == Events.directionOfContact(player, anotherPlayer)){
-        Event.contact(player, anotherPlayer);
+    _.each(this.players, function(anotherPlayer){
+      if (player.id == anotherPlayer.id) return;
+
+      if (input.directions.indexOf(Events.directionOfContact(player, anotherPlayer)) > -1){
+        Events.contact(player, anotherPlayer);
         isMovable = false;
       }
     });
 
-    if (isMovable) player.updatePosition(input.position);
-  }
-
-  this.getOtherPlayers = function(p){
-    var others = [];
-    var world = this;
-
-    _.each(this.players, function(player){
-      if (p.id != player.id) others.push(player);
-    });
+    if (isMovable) player.updatePosition(input.position.x, input.position.y);
 
     world = null;
-
-    return others;
-  };
+  }
 
   this.findPlayerByBadge = function(badge){
-    _.findWhere(this.players, { badge: badge });
+    return _.findWhere(this.players, { badge: badge });
   }
+
+  this.pause = function(){
+    clearInterval(this.interval);
+  };
+
+  this.resume = function(){
+    this._iterate();
+  };
 
   this.destroy = function(){
     clearInterval(this.invterval);
@@ -61,12 +60,15 @@ function World(players){
 
   // ============ Private ==============
 
+  this._iterate = function(){
+    this.interval = setInterval(this.update, UPDATE_INTERVAL);
+  };
 
   function _getInputData(players){
-    var inputData = []
+    var inputData = [];
 
     _.each(players, function(player){
-      inputs += player.inputs;
+      inputData = inputData.concat(player.inputs);
 
       player.clearInputBuffer();
     });
@@ -77,4 +79,8 @@ function World(players){
 
     return inputData;
   }
+
+  this.initialize();
 }
+
+module.exports = World;

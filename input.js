@@ -4,16 +4,20 @@ function Input(data){
 
     this.badge      = data.badge;
     this.position   = data.position;
-    this.directions = _vectorToDirection(data.direction);
+    this.directions = _vectorToDirection(data.directions);
   }
 
   // ================ Private ==================
 
   function _validateInputData(){
+    debugger
     if (!data.badge)      throw "Input data must have a badge!"
     if (!data.position)   throw "Input data must have a position value!"
-    if (!data.position.x) throw "Input data position must have a value of X coordinate!"
-    if (!data.position.y) throw "Input data position must have a value of Y coordinate!"
+
+    if (isNaN(data.position.x) || data.position.x == null || data.position.x == undefined)
+      throw "Input data position must have a value of X coordinate!"
+    if (isNaN(data.position.y) || data.position.y == null || data.position.y == undefined)
+      throw "Input data position must have a value of Y coordinate!"
   }
 
   function _vectorToDirection(vector){

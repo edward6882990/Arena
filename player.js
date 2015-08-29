@@ -76,23 +76,22 @@ function Player(socket){
 
     _.each(inputs, function(input){
       input.badge = self.badge;
-      this.inputs.push(input);
+      self.inputs.push(input);
     })
-  }
+  };
 
   this.clearInputBuffer = function(){
     this.inputs = [];
-  }
+  };
 
   this.broadcast = function(message, data){
     this.socket.broadcast.to(this.currentGameId()).emit(message, data);
-  }
+  };
 
-  this.updatePosition = function(position){
-    if (!position.x || !position.y) throw "Invalid position given. Cannot update!"
-
-    this.position = position;
-  }
+  this.updatePosition = function(x, y){
+    this.position.x = x;
+    this.position.y = y;
+  };
 
   // ============ Statuses ============
 
