@@ -8,6 +8,8 @@ function Player(socket){
 
   var currentGame = null;
 
+  var zombie = false;
+
   this.inputs = [];
 
   this.socket = socket;
@@ -60,6 +62,14 @@ function Player(socket){
   this.currentGame = function(){
     return currentGame;
   };
+
+  this.isZombie = function(){
+    return zombie;
+  },
+
+  this.becomeZombie = function(){
+    zombie = true;
+  },
 
   this.bufferInputs = function(inputs){
     var self = this;

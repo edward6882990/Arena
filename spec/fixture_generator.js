@@ -66,7 +66,23 @@ FixtureGenerator = {
   },
 
   generatePlayer: function(){
-    return new Player({ id: this.generateRandomId() });
+    return new Player({
+      id   : this.generateRandomId(),
+      emit : function(){},
+      broadcast: {
+        to: function(){ return { emit: function(){} }; }
+      }
+    });
+  },
+
+  generateWorld: function(){
+    var players = [];
+
+    for(i = 0; i < 4; i++){
+      players.push(this.generatePlayer());
+    }
+
+    return new World(players);
   }
 };
 

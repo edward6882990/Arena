@@ -17,11 +17,11 @@ Events = {
     }
 
     if (differenceY < 0 && Math.abs(differenceY) <= HEIGHT_FROM_CENTER_OF_CHARACTER) {
-      direction = "down";
+      direction = "up";
     }
 
     if (differenceY > 0 && Math.abs(differenceY) <= HEIGHT_FROM_CENTER_OF_CHARACTER) {
-      direction = "up";
+      direction = "down";
     }
 
     return direction;
@@ -41,6 +41,8 @@ Events = {
   },
 
   convertIntoZombie: function(zombiePlayer, convertedPlayer){
+    convertedPlayer.becomeZombie();
+
     zombiePlayer.socket.emit('convert-human-into-zombie');
     convertedPlayer.socket.emit('converted-into-zombie');
 

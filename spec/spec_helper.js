@@ -1,8 +1,12 @@
 var chai = require('chai');
+var spies = require('chai-spies');
 
 var FixtureGenerator = require('./fixture_generator');
 
 function SpecHelper(){
+  global.chai = chai;
+
+  chai.use(spies);
   chai.should();
 
   global.expect = chai.expect;
