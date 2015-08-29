@@ -91,20 +91,17 @@ io.on('connection', function(socket){
   socket.on('loaded', function(data){
     player.setLoaded();
 
-    if (player.currentGame().isAllPlayerLoaded())
+    if (player.currentGame().isAllPlayerLoaded()){
+      player.currentGame().start();
       socket
         .broadcast
         .to(player.currentGameId())
         .emit('game:start');
+    }
   });
 
   socket.on('user:input', function(data){
-    data['player_id'] = player.id;
-
-    socket
-      .broadcast
-      .to(player.currentGameId())
-      .emit('player:input', data);
+    player.bufferInputs(data);
   });
 
   socket.on('disconnect', function(){
