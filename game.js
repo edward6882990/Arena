@@ -105,10 +105,6 @@ function Game(data){
 
   // =============== Private =================
 
-  var _broadcastGameStart = function(){
-    players[0].socket.broadcast.to(this.id).emit('game:start');
-  };
-
   var _shuffle = function(array){
     var counter = array.length, temp, index;
 

@@ -10,17 +10,28 @@ function World(players){
 
   this.initialize = function(){
     this._iterate();
+
+    this.broadcast('game:start');
   };
 
   this.update = function(){
     var inputData = _getInputData(this.players);
 
-    while(inputData.length > 0){
-      var inputDatum = inputData.pop();
-      var player = this.findPlayerByBadge(inputDatum.badge);
+    var executedInputs = [];
 
-      this.executeInputForPlayer(player, inputDatum)
+    while(inputData.length > 0){
+      try {
+        var inputDatum = inputData.pop();
+        var player = this.findPlayerByBadge(inputDatum.badge);
+
+        this.executeInputForPlayer(player, inputDatum)
+
+        executedInputs.push(inputDatum);
+      } catch(err){
+      }
     }
+
+    this.broadcast('server:world:update', executedInputs);
   };
 
   this.executeInputForPlayer = function(player, inputDatum){
@@ -62,6 +73,12 @@ function World(players){
 
   this._iterate = function(){
     this.interval = setInterval(this.update, UPDATE_INTERVAL);
+  };
+
+  this.broadcast = function(message, data){
+    _.each(this.players, function(player){
+      player.socket.emit(message, data);
+    });
   };
 
   function _getInputData(players){

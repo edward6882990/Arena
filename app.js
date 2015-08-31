@@ -93,10 +93,6 @@ io.on('connection', function(socket){
 
     if (player.currentGame().isAllPlayerLoaded()){
       player.currentGame().start();
-      socket
-        .broadcast
-        .to(player.currentGameId())
-        .emit('game:start');
     }
   });
 
