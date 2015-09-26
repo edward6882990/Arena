@@ -9,6 +9,7 @@ function Game(data){
 
   this.owner     = null;
   this.isStarted = false;
+  this.isDeleted = false;
 
   this.initialize = function(){
     _validateGameParams(data);
@@ -38,6 +39,8 @@ function Game(data){
 
         if(!players.length == 0)
           this.owner = players[0];
+        else
+          this.isDeleted = true;
 
         break;
       }

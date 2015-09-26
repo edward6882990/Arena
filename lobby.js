@@ -1,18 +1,35 @@
+var _ = require('underscore');
+
 var Game = require('./game');
 
 function Lobby(){
+  var CLEAR_DELETED_GAMES_INTERVAL = 10000;
+  var GAMES_PER_PAGE   = 10;
   var VALID_GAME_TYPES = ['private', 'public'];
 
+  var games       = [];
   var gamesByType = {};
   var gamesById   = {};
+
+  this.initialize = function(){
+    var cleanDeletedGames = function(){
+      _.each(games, function(game){
+        if (game.istDeleted) _removeAllReferencesOfGame(game);
+      });
+    };
+
+    setInterval(cleanDeletedGames, CLEAR_DELETED_GAMES_INTERVAL);
+  };
 
   this.createGame = function(data){
     validateGameParams(data);
 
     var game = new Game(data);
+
     gamesByType[game.type] = gamesByType[game.type] ? gamesByType[game.type] : [];
     gamesByType[game.type].push(game);
     gamesById[game.id] = game;
+    games.push(game);
 
     return game;
   };
@@ -30,14 +47,20 @@ function Lobby(){
   };
 
   this.allGames = function(){
-    var games = []
-
-    for(i = 0; i < VALID_GAME_TYPES.length; i++){
-      games = games.concat(
-          gamesByType[VALID_GAME_TYPES[i]] ? gamesByType[VALID_GAME_TYPES[i]] : []);
-    }
-
     return games;
+  };
+
+  this.numOfAllGames = function(){
+    return games.length;
+  };
+
+  this.gamesByPage = function(page){
+    if (games.length < page * GAMES_PER_PAGE)
+      return games;
+    else if (games.length - page * GAMES_PER_PAGE < GAMES_PER_PAGE)
+      return games.slice((page - 1) * GAMES_PER_PAGE);
+    else
+      return games.slice((page - 1) * GAMES_PER_PAGE, page * GAMES_PER_PAGE - 1);
   };
 
   this.clearLobby = function(){
@@ -84,6 +107,8 @@ function Lobby(){
 
     game = null;
   };
+
+  this.initialize();
 }
 
 module.exports = Lobby;

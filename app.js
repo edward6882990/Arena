@@ -1,3 +1,5 @@
+var _     = require('underscore');
+
 var app   = require('http').createServer(handler);
 var io    = require('socket.io')(app);
 
@@ -22,9 +24,17 @@ function authenticate(token) {
   return true;
 }
 
+function broadcastGameRoomsUpdated(io){
+  io.sockets.emit('gamerooms:updated', {
+    totalPages  : Math.ceil(arena.lobby.numOfAllGames() / 10)
+  });
+}
+
 io.on('connection', function(socket){
   var self = this;
   var player = new Player(socket);
+
+  console.log('Connected: ' + socket.id);
 
   arena.checkInPlayer(player);
 
@@ -36,16 +46,33 @@ io.on('connection', function(socket){
     }
   };
 
+  socket.on('gamerooms:get-update', function(data){
+    var games = arena.lobby.gamesByPage(data.page);
+
+    socket.emit('gamerooms:receive-update', {
+      totalPages  : Math.ceil(arena.lobby.numOfAllGames() / 10),
+      currentPage : data.page,
+      games       : _.map(games, function(game){ return game.id; })
+    });
+  });
+
   socket.on('create:gameroom', function(data){
     socket.join(player.id);
 
-    player.resetStatus();
+    player.leaveCurrentGame();
 
-    arena.lobby.createGame({
+    var game = arena.lobby.createGame({
       id: player.id,
       type: data.type,
       owner: player
     });
+
+    socket.emit('create:gameroom:success', {
+      game_id: game.id,
+      players: _.map(game.allPlayers(), function(player){ return player.id; })
+    });
+
+    broadcastGameRoomsUpdated(io);
   });
 
   socket.on('join:gameroom', function(data){
@@ -71,6 +98,9 @@ io.on('connection', function(socket){
 
       player.leaveCurrentGame();
     }
+
+    socket.emit('left:gameroom');
+    broadcastGameRoomsUpdated(io);
   });
 
   socket.on('ready', function(data){
