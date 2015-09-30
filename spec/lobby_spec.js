@@ -89,6 +89,39 @@ describe("Lobby", function(){
     });
   });
 
+  describe("ejectPlayerFromCurrentGame", function(){
+    var player = new Player({ id: generateRandomId() });
+    var data = {
+      id    : player.id,
+      type  : 'private',
+      owner : player
+    };
+
+    context("when the game has only one player", function(){
+      it("destroys the game", function(){
+        var game = lobby.createGame(data);
+        lobby.ejectPlayerFromCurrentGame(player);
+
+        expect(lobby.findGameById(game.id)).to.eq(null);
+      });
+    });
+
+    context("when the game has more than one player", function(){
+
+      it("does not destroy the game", function(){
+        var game = lobby.createGame(data);
+        var player2 = new Player({ id: generateRandomId() });
+
+        game.usherPlayer(player2);
+        expect(game.numOfPlayers()).to.eq(2);
+
+        lobby.ejectPlayerFromCurrentGame(player);
+        expect(lobby.findGameById(game.id)).not.to.eq(null);
+      });
+
+    });
+  });
+
   describe("destroyGame", function(){
     var player = new Player({ id: generateRandomId() });
     var data = {

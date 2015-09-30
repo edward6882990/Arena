@@ -34,6 +34,15 @@ function Lobby(){
     return game;
   };
 
+  this.ejectPlayerFromCurrentGame = function(player){
+    var game = player.currentGame();
+
+    player.leaveCurrentGame();
+    if(game.numOfPlayers() == 0) this.destroyGame(game);
+
+    game = null;
+  };
+
   this.destroyGame = function(game){
     _removeAllReferencesOfGame(game);
   };

@@ -26,15 +26,18 @@ function authenticate(token) {
 
 function broadcastGameRoomsUpdated(io){
   io.sockets.emit('gamerooms:updated', {
-    totalPages  : Math.ceil(arena.lobby.numOfAllGames() / 10)
+    totalPages : totalPages()
   });
+}
+
+function totalPages(){
+  return Math.max(
+    Math.ceil(arena.lobby.numOfAllGames() / 10), 1);
 }
 
 io.on('connection', function(socket){
   var self = this;
   var player = new Player(socket);
-
-  console.log('Connected: ' + socket.id);
 
   arena.checkInPlayer(player);
 
@@ -50,7 +53,7 @@ io.on('connection', function(socket){
     var games = arena.lobby.gamesByPage(data.page);
 
     socket.emit('gamerooms:receive-update', {
-      totalPages  : Math.ceil(arena.lobby.numOfAllGames() / 10),
+      totalPages  : totalPages(),
       currentPage : data.page,
       games       : _.map(games, function(game){ return game.id; })
     });
@@ -91,12 +94,12 @@ io.on('connection', function(socket){
 
   socket.on('leave:gameroom', function(data){
     if (player.isInGame()){
+      arena.lobby.ejectPlayerFromCurrentGame(player);
+
       socket
         .broadcast
         .to(player.currentGameId())
         .emit('player:left:gameroom');
-
-      player.leaveCurrentGame();
     }
 
     socket.emit('left:gameroom');
