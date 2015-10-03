@@ -82,7 +82,9 @@ io.on('connection', function(socket){
 
     socket.emit('create:gameroom:success', {
       game_id: game.id,
-      players: _.map(game.allPlayers(), function(player){ return player.id; })
+      players: _.map(game.allPlayers(), function(player){
+        return { id: player.id, owner : player.id == game.owner.id };
+      })
     });
 
     broadcastGameRoomsUpdated(io);
@@ -99,8 +101,10 @@ io.on('connection', function(socket){
     if(game.usherPlayer(player)) {
       socket.emit('join:gameroom:success', {
         game_id: game.id,
-        players: _.map(game.allPlayers(), function(player){ return player.id; })
-      })
+        players: _.map(game.allPlayers(), function(player){
+          return { id: player.id, owner : player.id == game.owner.id };
+        })
+      });
     }
   });
 
