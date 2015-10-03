@@ -97,9 +97,9 @@ io.on('connection', function(socket){
 
     var game = arena.lobby.findGameById(data.gameId);
     if(game.usherPlayer(player)) {
-      socket.emit('joined:gameroom', {
-        id: game.id,
-        players: game.allPlayers().map(function(p){ p.id })
+      socket.emit('join:gameroom:success', {
+        game_id: game.id,
+        players: _.map(game.allPlayers(), function(player){ return player.id; })
       })
     }
   });
