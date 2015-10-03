@@ -24,8 +24,8 @@ function authenticate(token) {
   return true;
 }
 
-function broadcastGameRoomsUpdated(io){
-  io.sockets.emit('gamerooms:updated', {
+function broadcastLobbyUpdated(io){
+  io.sockets.emit('lobby:updated', {
     totalPages : totalPages()
   });
 }
@@ -55,12 +55,12 @@ io.on('connection', function(socket){
     }
   };
 
-  socket.on('gamerooms:get-update', function(data){
-    eventLog(socket, 'gamerooms:get-update');
+  socket.on('lobby:get-update', function(data){
+    eventLog(socket, 'lobby:get-update');
 
     var games = arena.lobby.gamesByPage(data.page);
 
-    socket.emit('gamerooms:receive-update', {
+    socket.emit('lobby:receive-update', {
       totalPages  : totalPages(),
       currentPage : data.page,
       games       : _.map(games, function(game){ return game.id; })
@@ -87,7 +87,7 @@ io.on('connection', function(socket){
       })
     });
 
-    broadcastGameRoomsUpdated(io);
+    broadcastLobbyUpdated(io);
   });
 
   socket.on('join:gameroom', function(data){
@@ -99,12 +99,15 @@ io.on('connection', function(socket){
 
     var game = arena.lobby.findGameById(data.gameId);
     if(game.usherPlayer(player)) {
-      socket.emit('join:gameroom:success', {
+      var data = {
         game_id: game.id,
         players: _.map(game.allPlayers(), function(player){
           return { id: player.id, owner : player.id == game.owner.id };
         })
-      });
+      };
+
+      socket.emit('join:gameroom:success', data);
+      socket.broadcast.to(player.currentGameId()).emit('gameroom:updated', data);
     }
   });
 
@@ -112,16 +115,22 @@ io.on('connection', function(socket){
     eventLog(socket, 'leave:gameroom');
 
     if (player.isInGame()){
-      arena.lobby.ejectPlayerFromCurrentGame(player);
+      var game = arena.lobby.ejectPlayerFromCurrentGame(player);
 
-      socket
-        .broadcast
-        .to(player.currentGameId())
-        .emit('player:left:gameroom');
+      if (game != null) {
+        var data = {
+          game_id: game.id,
+          players: _.map(game.allPlayers(), function(player){
+            return { id: player.id, owner : player.id == game.owner.id };
+          })
+        };
+
+        socket.broadcast.to(game.id).emit('gameroom:updated', data);
+      }
     }
 
     socket.emit('left:gameroom');
-    broadcastGameRoomsUpdated(io);
+    broadcastLobbyUpdated(io);
   });
 
   socket.on('ready', function(data){

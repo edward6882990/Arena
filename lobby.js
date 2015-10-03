@@ -38,9 +38,12 @@ function Lobby(){
     var game = player.currentGame();
 
     player.leaveCurrentGame();
-    if(game.numOfPlayers() == 0) this.destroyGame(game);
+    if(game.numOfPlayers() == 0) {
+      this.destroyGame(game);
+      game = null;
+    }
 
-    game = null;
+    return game;
   };
 
   this.destroyGame = function(game){

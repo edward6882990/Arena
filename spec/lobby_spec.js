@@ -105,6 +105,14 @@ describe("Lobby", function(){
         expect(lobby.findGameById(game.id)).to.eq(undefined);
         expect(_.map(lobby.allGames(), function(game){ return game.id; }).indexOf(game.id)).to.equal(-1);
       });
+
+      it("returns null", function (){
+        var game         = lobby.createGame(data);
+        var returnedGame = lobby.ejectPlayerFromCurrentGame(player);
+
+        expect(returnedGame).to.eql(null);
+      });
+
     });
 
     context("when the game has more than one player", function(){
@@ -120,6 +128,17 @@ describe("Lobby", function(){
         expect(lobby.findGameById(game.id)).not.to.eq(undefined);
       });
 
+      it("returns the game the player returned from", function (){
+        var game         = lobby.createGame(data);
+        var player2 = new Player({ id: generateRandomId() });
+
+        game.usherPlayer(player2);
+        expect(game.numOfPlayers()).to.eq(2);
+
+        var returnedGame = lobby.ejectPlayerFromCurrentGame(player);
+
+        expect(returnedGame.id).to.eq(game.id);
+      });
     });
   });
 
