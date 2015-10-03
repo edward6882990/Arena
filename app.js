@@ -35,13 +35,17 @@ function totalPages(){
     Math.ceil(arena.lobby.numOfAllGames() / 10), 1);
 }
 
+function eventLog(socket, msg){
+  console.log(socket.id + ": " + msg);
+}
+
 io.on('connection', function(socket){
   var self = this;
   var player = new Player(socket);
 
   arena.checkInPlayer(player);
 
-  console.log('connected: ' + socket.id);
+  eventLog(socket, 'connected');
 
   var withAuthentication = function(token, callback, args){
     if (authenticate(token)) {
@@ -52,7 +56,7 @@ io.on('connection', function(socket){
   };
 
   socket.on('gamerooms:get-update', function(data){
-    console.log(socket.id + ': gamerooms:get-update');
+    eventLog(socket, 'gamerooms:get-update');
 
     var games = arena.lobby.gamesByPage(data.page);
 
@@ -64,6 +68,8 @@ io.on('connection', function(socket){
   });
 
   socket.on('create:gameroom', function(data){
+    eventLog(socket, 'create:gameroom');
+
     socket.join(player.id);
 
     player.leaveCurrentGame();
@@ -83,11 +89,13 @@ io.on('connection', function(socket){
   });
 
   socket.on('join:gameroom', function(data){
+    eventLog(socket, 'join:gameroom');
+
     socket.join(data.gameId);
 
     player.resetStatus();
 
-    arena.lobby.findGameById(data.gameId);
+    var game = arena.lobby.findGameById(data.gameId);
     if(game.usherPlayer(player)) {
       socket.emit('joined:gameroom', {
         id: game.id,
@@ -97,6 +105,8 @@ io.on('connection', function(socket){
   });
 
   socket.on('leave:gameroom', function(data){
+    eventLog(socket, 'leave:gameroom');
+
     if (player.isInGame()){
       arena.lobby.ejectPlayerFromCurrentGame(player);
 
@@ -111,6 +121,8 @@ io.on('connection', function(socket){
   });
 
   socket.on('ready', function(data){
+    eventLog(socket, 'ready');
+
     socket
       .broadcast
       .to(player.currentGameId())
@@ -126,6 +138,8 @@ io.on('connection', function(socket){
   });
 
   socket.on('loaded', function(data){
+    eventLog(socket, 'ready');
+
     player.setLoaded();
 
     if (player.currentGame().isAllPlayerLoaded()){
@@ -134,10 +148,14 @@ io.on('connection', function(socket){
   });
 
   socket.on('user:input', function(data){
+    eventLog(socket, 'user:input');
+
     player.bufferInputs(data);
   });
 
   socket.on('disconnect', function(){
+    eventLog(socket, 'disconnect');
+
     if (player.isInGame()) arena.lobby.ejectPlayerFromCurrentGame(player);
     arena.checkOutPlayer(player);
     player = null;
