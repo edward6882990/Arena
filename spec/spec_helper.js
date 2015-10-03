@@ -1,5 +1,6 @@
-var chai = require('chai');
+var chai  = require('chai');
 var spies = require('chai-spies');
+var _     = require('underscore');
 
 var FixtureGenerator = require('./fixture_generator');
 
@@ -11,6 +12,8 @@ function SpecHelper(){
 
   global.expect = chai.expect;
   global.FixtureGenerator = FixtureGenerator;
+
+  global._ = _;
 
   global.generateRandomId = function(){
     return FixtureGenerator.generateRandomId();

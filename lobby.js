@@ -107,11 +107,16 @@ function Lobby(){
   };
 
   var _removeAllReferencesOfGame = function(game){
-    gamesById[game.id] = null;
+    delete gamesById[game.id];
 
     gameIndexByType = gamesByType[game.type].indexOf(game);
     if(gameIndexByType > -1){
       gamesByType[game.type].splice(gameIndexByType, 1);
+    }
+
+    gameIndex = games.indexOf(game);
+    if(gameIndex > -1){
+      games.splice(gameIndex);
     }
 
     game = null;

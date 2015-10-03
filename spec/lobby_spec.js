@@ -102,7 +102,8 @@ describe("Lobby", function(){
         var game = lobby.createGame(data);
         lobby.ejectPlayerFromCurrentGame(player);
 
-        expect(lobby.findGameById(game.id)).to.eq(null);
+        expect(lobby.findGameById(game.id)).to.eq(undefined);
+        expect(_.map(lobby.allGames(), function(game){ return game.id; }).indexOf(game.id)).to.equal(-1);
       });
     });
 
@@ -116,7 +117,7 @@ describe("Lobby", function(){
         expect(game.numOfPlayers()).to.eq(2);
 
         lobby.ejectPlayerFromCurrentGame(player);
-        expect(lobby.findGameById(game.id)).not.to.eq(null);
+        expect(lobby.findGameById(game.id)).not.to.eq(undefined);
       });
 
     });
@@ -134,7 +135,7 @@ describe("Lobby", function(){
     it("destroy the given game", function(){
       lobby.destroyGame(game);
 
-      expect(lobby.findGameById(game.id)).to.eq(null);
+      expect(lobby.findGameById(game.id)).to.eq(undefined);
     });
   });
 });

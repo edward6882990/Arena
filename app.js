@@ -41,6 +41,8 @@ io.on('connection', function(socket){
 
   arena.checkInPlayer(player);
 
+  console.log('connected: ' + socket.id);
+
   var withAuthentication = function(token, callback, args){
     if (authenticate(token)) {
       callback.apply(self, args);
@@ -50,6 +52,8 @@ io.on('connection', function(socket){
   };
 
   socket.on('gamerooms:get-update', function(data){
+    console.log(socket.id + ': gamerooms:get-update');
+
     var games = arena.lobby.gamesByPage(data.page);
 
     socket.emit('gamerooms:receive-update', {
@@ -134,6 +138,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('disconnect', function(){
+    if (player.isInGame()) arena.lobby.ejectPlayerFromCurrentGame(player);
     arena.checkOutPlayer(player);
     player = null;
   });
