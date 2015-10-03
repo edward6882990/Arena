@@ -44,6 +44,10 @@ function Player(socket){
     ready = true;
   };
 
+  this.setNotReady = function(){
+    ready = false;
+  };
+
   this.currentGameId = function(){
     return currentGame ? currentGame.id : null;
   };

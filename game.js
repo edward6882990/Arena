@@ -56,6 +56,20 @@ function Game(data){
     return players;
   };
 
+  this.info = function(){
+    var self = this;
+    return {
+      game_id: this.id,
+      players: _.map(this.allPlayers(), function(player){
+        return {
+          id    : player.id,
+          owner : player.id == self.owner.id,
+          ready: player.isReady()
+        };
+      })
+    };
+  };
+
   // ============= Statuses =================
 
   this.isFull = function(){

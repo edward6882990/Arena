@@ -30,6 +30,7 @@ function broadcastLobbyUpdated(io){
   });
 }
 
+
 function totalPages(){
   return Math.max(
     Math.ceil(arena.lobby.numOfAllGames() / 10), 1);
@@ -80,12 +81,7 @@ io.on('connection', function(socket){
       owner: player
     });
 
-    socket.emit('create:gameroom:success', {
-      game_id: game.id,
-      players: _.map(game.allPlayers(), function(player){
-        return { id: player.id, owner : player.id == game.owner.id };
-      })
-    });
+    socket.emit('create:gameroom:success', game.info());
 
     broadcastLobbyUpdated(io);
   });
@@ -99,12 +95,7 @@ io.on('connection', function(socket){
 
     var game = arena.lobby.findGameById(data.gameId);
     if(game.usherPlayer(player)) {
-      var data = {
-        game_id: game.id,
-        players: _.map(game.allPlayers(), function(player){
-          return { id: player.id, owner : player.id == game.owner.id };
-        })
-      };
+      var data = game.info();
 
       socket.emit('join:gameroom:success', data);
       socket.broadcast.to(player.currentGameId()).emit('gameroom:updated', data);
@@ -118,14 +109,7 @@ io.on('connection', function(socket){
       var game = arena.lobby.ejectPlayerFromCurrentGame(player);
 
       if (game != null) {
-        var data = {
-          game_id: game.id,
-          players: _.map(game.allPlayers(), function(player){
-            return { id: player.id, owner : player.id == game.owner.id };
-          })
-        };
-
-        socket.broadcast.to(game.id).emit('gameroom:updated', data);
+        socket.broadcast.to(game.id).emit('gameroom:updated', game.info());
       }
     }
 
@@ -136,19 +120,32 @@ io.on('connection', function(socket){
   socket.on('ready', function(data){
     eventLog(socket, 'ready');
 
-    socket
-      .broadcast
-      .to(player.currentGameId())
-      .emit('player:ready');
-
     player.setReady();
 
+    socket.emit('ready:success');
+
+    var data = player.currentGame().info();
+    socket.emit('gameroom:updated', data);
+    socket.broadcast.to(player.currentGameId()).emit('gameroom:updated', data);
+
     if (player.currentGame().isAllPlayerReady())
-      socket
+      io.sockets
         .broadcast
         .to(player.currentGameId())
         .emit('game:load');
   });
+
+  socket.on('cancel:ready', function(data){
+    eventLog(socket, 'canel:ready');
+
+    player.setNotReady();
+
+    socket.emit('cancel:ready:success');
+
+    var data = player.currentGame().info();
+    socket.emit('gameroom:updated',data);
+    socket.broadcast.to(player.currentGameId()).emit('gameroom:updated', data);
+  })
 
   socket.on('loaded', function(data){
     eventLog(socket, 'ready');
